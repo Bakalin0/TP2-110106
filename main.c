@@ -4,19 +4,18 @@
 #include "src/lista.h"
 #include "src/adversario.h"
 #include <stdio.h>
+#include <string.h>
+#include "src/menu.h"
 
-/**
-* Este main debe ser modificado para que el usuario pueda jugar el juego. Las
-* instrucciones existentes son solamente a modo ilustrativo del funcionamiento
-* muy alto nivel del juego.
-*
-* Las interacciones deben realizarse por entrada/salida estandar y estar validadas.
-*
-* Se aconseja en todo momento mostrar información relevante para el jugador (por
-* ejemplo, mostrar puntaje actual y movimientos disponibles) para hacer que el
-* juego sea facil de utilizar.
-*/
+struct estado_juego{
+	juego_t* juego;
+	bool continuar;
+	menu_t* menu;
+};
 
+
+
+/*
 int main(int argc, char *argv[])
 {
 	juego_t *juego = juego_crear();
@@ -75,4 +74,95 @@ int main(int argc, char *argv[])
 	}
 
 	juego_destruir(juego);
+}
+*/
+
+
+//Esta es para la lista
+bool mostrar_pokemon(void* pokemon, void* contexto){
+	printf("Nombre: %s\n", pokemon_nombre(pokemon));
+
+	return true;
+}
+
+
+//Estas son para el menú
+bool cargar_archivo(void* e){
+	//struct estado_juego* estado = e;
+	return false;
+}
+
+bool listar_pokemones(void* e){
+	struct estado_juego* estado = e;
+
+	lista_con_cada_elemento(juego_listar_pokemon(estado->juego), mostrar_pokemon, NULL);
+	return true;
+}
+
+bool salir(void* e){
+	struct estado_juego* estado = e;
+	estado->continuar = false;
+	return true;
+}
+
+bool mostrar_ayuda(void* e){
+	struct estado_juego* estado = e;
+
+	menu_con_cada_comando(estado->menu, mostrar_comando, NULL);
+
+	return true;
+}
+
+int comparador(void *_elemento1, void *_elemento2)
+{
+	if (!_elemento1 && !_elemento2) {
+		return 0;
+	}
+	int *elemento1 = _elemento1;
+	int *elemento2 = _elemento2;
+	return *elemento1 - *elemento2;
+}
+
+int main(){
+
+	juego_t* juego = juego_crear();
+
+	juego_cargar_pokemon(juego, "ejemplos/correcto.txt");
+
+	menu_t* menu = menu_crear();
+
+	menu_agregar_comando(menu, "c", "Cargar un archivo", pokemon_cargar_archivo);
+	menu_agregar_comando(menu, "l", "Listar Pokemones", juego_listar_pokemon);
+	menu_agregar_comando(menu, "ayuda", "Muestra esta ayuda", mostrar_ayuda);
+	menu_agregar_comando(menu, "q", "Sale del juego", salir);
+
+	struct estado_juego estado = {.juego = juego, .continuar = true, .menu = menu};
+
+	printf("Hola\n\nIngrese comandos a continuación o escriba 'ayuda' para obtener ayuda");
+
+	while(!juego_finalizado(juego) && estado.continuar){
+		printf("\nTP2>> ");
+
+		char linea[200];
+		char* leido;
+		leido = fgets(linea, 200, stdin);
+		if(leido == NULL){
+			continue;
+		}
+		
+		linea[strlen(linea)-1] = 0;
+		MENU_RESULTADO resultado = menu_ejecutar_comando(menu, linea, comparador);
+
+		if(resultado == MENU_INEXISTENTE){
+			printf("Ese comando no existe. Podés intentar con 'ayuda'\n");
+		}
+		else if(resultado == MENU_ERROR){
+			printf("Hubo un problema al ejecutar el comando\n");
+		}
+	}
+
+
+
+	menu_destruir(menu);
+
 }

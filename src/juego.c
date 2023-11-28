@@ -4,10 +4,22 @@
 #include <stdbool.h>
 #include "pokemon.h"
 #include "ataque.h"
+#include <stdlib.h>
+#include <stddef.h>
+
+struct juego{
+	lista_t* jugador1;
+	lista_t* jugador2;
+};
 
 juego_t *juego_crear()
 {
-	return NULL;
+	juego_t* juego;
+
+	juego->jugador1 = calloc(1, sizeof(lista_t*));
+	juego->jugador2 = calloc(1, sizeof(lista_t*));
+
+	return juego;
 }
 
 JUEGO_ESTADO juego_cargar_pokemon(juego_t *juego, char *archivo)
