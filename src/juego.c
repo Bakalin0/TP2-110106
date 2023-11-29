@@ -6,29 +6,52 @@
 #include "ataque.h"
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdio.h>
+#include "estructura_pokemones.h"
+
 
 struct juego{
 	lista_t* jugador1;
 	lista_t* jugador2;
+
+	informacion_pokemon_t *pokemones;
 };
 
 juego_t *juego_crear()
 {
-	juego_t* juego;
-
-	juego->jugador1 = calloc(1, sizeof(lista_t*));
-	juego->jugador2 = calloc(1, sizeof(lista_t*));
+	juego_t* juego = calloc(1, sizeof(juego_t));
 
 	return juego;
 }
 
 JUEGO_ESTADO juego_cargar_pokemon(juego_t *juego, char *archivo)
 {
-	return ERROR_GENERAL;
+	juego->pokemones = pokemon_cargar_archivo(archivo);
+	if (juego->pokemones == NULL){
+		return ERROR_GENERAL;
+	}
+	
+	if(juego->pokemones->cantidad_pokemones < 6){
+		return POKEMON_INSUFICIENTES;
+	}
+
+	return TODO_OK;
 }
 
 lista_t *juego_listar_pokemon(juego_t *juego)
 {
+	/*lista_t* lista = lista_crear();
+
+	for(int i = 0; i < juego->pokemones->cantidad_pokemones; i++){
+		lista_insertar(lista, juego->pokemones->pokemones[i]);
+	}
+
+	if(!lista){
+		return NULL;
+	}
+
+	return lista;*/
+
 	return NULL;
 }
 
@@ -60,4 +83,5 @@ bool juego_finalizado(juego_t *juego)
 
 void juego_destruir(juego_t *juego)
 {
+	free(juego);
 }

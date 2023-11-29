@@ -50,9 +50,9 @@ MENU_RESULTADO menu_ejecutar_comando(menu_t* menu, void* contexto, int (*compara
 	printf("%s: %s\n", info->comando, info->descripcion);
 }*/
 
-size_t menu_con_cada_comando(menu_t* menu, bool(*f)(void*, void*), void* contexto){
+/*size_t menu_con_cada_comando(menu_t* menu, bool(*f)(void*, void*), void* contexto){
 	return lista_con_cada_elemento((lista_t*)menu, mostrar_comando, contexto);
-}
+}*/
 
 void menu_destruir(menu_t* menu){
 	free(menu);
