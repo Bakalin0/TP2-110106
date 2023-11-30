@@ -42,7 +42,8 @@ JUEGO_ESTADO agregar_pokemones(juego_t *juego, const char *nombre1, const char *
 	pokemon_t pokemon3;
 
 	for(int i = 0; i < cantidad; i++){
-		char *nombre_pokemon = juego->info->pokemones[i].nombre;
+		pokemon_t *p = lista_elemento_en_posicion(juego->pokemones, i);
+		char *nombre_pokemon = pokemon_nombre(p);//juego->info->pokemones[i].nombre;
 
 		if(nombre1 == nombre_pokemon){
 			contador++;
@@ -183,8 +184,16 @@ juego_t *juego_crear()
 		return NULL;
 	}
 
+	juego->jugador1 = calloc(1, sizeof(jugador_t));
+	juego->jugador2 = calloc(1, sizeof(jugador_t));
+
 
 	return juego;
+}
+
+void agregar_a_lista(pokemon_t* p, void* lista)
+{
+	lista_insertar(lista, p);
 }
 
 JUEGO_ESTADO juego_cargar_pokemon(juego_t *juego, char *archivo)
@@ -195,8 +204,12 @@ JUEGO_ESTADO juego_cargar_pokemon(juego_t *juego, char *archivo)
 	}
 	
 	if(juego->info->cantidad < 6){
+		pokemon_destruir_todo(juego->info);
 		return POKEMON_INSUFICIENTES;
 	}
+
+	//cargar la lista
+	con_cada_pokemon(juego->info, agregar_a_lista, juego->pokemones_totales);
 	
 
 	return TODO_OK;
@@ -204,26 +217,8 @@ JUEGO_ESTADO juego_cargar_pokemon(juego_t *juego, char *archivo)
 
 lista_t *juego_listar_pokemon(juego_t *juego)
 {
-	int cantidad_pokemones = juego->info->cantidad;
-
-	/*int i = 0;
-	while (i < cantidad_pokemones){
-		pokemon_t pokemon = juego->info->pokemones[i];
-		lista_insertar(juego->pokemones_totales, &pokemon);
-
-		i++;
-	}*/
-
-	for(int i = 0; i < cantidad_pokemones; i++){
-		pokemon_t pokemon = juego->info->pokemones[i];
-		lista_insertar(juego->pokemones_totales, &pokemon);
-	}
-
-
-	if(!juego->pokemones_totales){
+	if(!juego)
 		return NULL;
-	}
-
 	return juego->pokemones_totales;
 }
 
@@ -318,7 +313,7 @@ resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
 
 int juego_obtener_puntaje(juego_t *juego, JUGADOR jugador)
 {
-	if(!juego || !jugador){
+	if(!juego){
 		return 0;
 	}
 
