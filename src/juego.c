@@ -177,6 +177,13 @@ juego_t *juego_crear()
 		return NULL;
 	}
 
+	juego->pokemones_totales = lista_crear();
+	if(!juego->pokemones_totales){
+		free(juego);
+		return NULL;
+	}
+
+
 	return juego;
 }
 
@@ -348,7 +355,6 @@ void juego_destruir(juego_t *juego)
 	free(juego->jugador2);
 
 	lista_destruir(juego->pokemones_totales);
-	free(juego->pokemones_totales);
 
 	pokemon_destruir_todo(juego->info);
 
