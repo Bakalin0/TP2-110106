@@ -8,6 +8,9 @@
 #include <stddef.h>
 #include <stdio.h>
 #include "estructura_pokemones.h"
+#include <string.h>
+
+#define MAX_TURNOS 9
 
 
 typedef struct jugador{
@@ -15,15 +18,22 @@ typedef struct jugador{
 	int puntaje;
 }jugador_t;
 
+typedef struct turno{
+	jugada_t* jugada_1;
+	jugada_t* jugada_2;
+}turno_t;
+
 struct juego{
 	jugador_t* jugador1;
 	jugador_t* jugador2;
 
 	informacion_pokemon_t *info;
 	lista_t* pokemones_totales;
-	int turno;
+
+	turno_t* turno[MAX_TURNOS];
+	int numero_turno;
 };
-/*
+
 JUEGO_ESTADO agregar_pokemones(juego_t *juego, const char *nombre1, const char *nombre2, const char* nombre3, jugador_t* jugador_seleccionado, jugador_t* otro_jugador){
 	int cantidad = juego->info->cantidad_pokemones;
 	int contador = 0;
@@ -57,13 +67,13 @@ JUEGO_ESTADO agregar_pokemones(juego_t *juego, const char *nombre1, const char *
 	lista_t* lista_jug_s = jugador_seleccionado->lista_pokemones;
 	lista_t* lista_jug_o = otro_jugador->lista_pokemones;
 	
-	jugador_seleccionado = lista_insertar(lista_jug_s, pokemon1);
-	jugador_seleccionado = lista_insertar(lista_jug_s, pokemon2);
-	otro_jugador = lista_insertar(lista_jug_o, pokemon3);
+	lista_insertar(lista_jug_s, pokemon1);
+	lista_insertar(lista_jug_s, pokemon2);
+	lista_insertar(lista_jug_o, pokemon3);
 
 	return TODO_OK;
-}*/
-/*
+}
+
 bool ataque_caso_efectivo(enum TIPO tipo_ataque, enum TIPO tipo_pokemon){
 	if(tipo_ataque == FUEGO && tipo_pokemon == PLANTA){
 		return true;
@@ -111,29 +121,54 @@ RESULTADO_ATAQUE calcular_efectiviad(enum TIPO tipo_ataque, enum TIPO tipo_pokem
 		return ATAQUE_INEFECTIVO;
 	}
 
-	else{
+	else if(tipo_ataque == NORMAL){
 		return NORMAL;
 	}
+
+	return ATAQUE_ERROR;
 }
 
 int asignar_poder_de_ataque(struct ataque* ataque_seleccionado, pokemon_t* pokemon_rival){
-	if(!ataque_seleccionado){
+	if(!ataque_seleccionado || !pokemon_rival){
 		return 0;
 	}
 	
 	RESULTADO_ATAQUE efectividad = calcular_efectiviad(ataque_seleccionado->tipo, pokemon_rival->tipo);
+	if(efectividad == ATAQUE_ERROR){
+		return 0;
+	}
 
 	if(efectividad == ATAQUE_EFECTIVO){
-		return (ataque_seleccionado->poder * 3);
+		return ((int)ataque_seleccionado->poder * 3);
 	}
 
 	else if(efectividad == ATAQUE_INEFECTIVO){
-		return (ataque_seleccionado->poder / 2);
+		return ((int)ataque_seleccionado->poder / 2);
 	}
 
-	return ataque_seleccionado->poder;
+	return (int)ataque_seleccionado->poder;
 
-}*/
+}
+
+JUEGO_ESTADO usar_ataque(pokemon_t* pokemon_elegido, struct ataque* ataque_seleccionado){
+	if(!pokemon_elegido || !ataque_seleccionado){
+		return ERROR_GENERAL;
+	}
+	bool sacado = false;
+	for(int i = 0; i < pokemon_elegido->cant_ataques; i++){
+		if(strcmp(pokemon_elegido->ataques[i]->nombre, ataque_seleccionado->nombre) == 0){
+			free(pokemon_elegido->ataques[i]);
+			pokemon_elegido->ataques[i] = NULL;
+			sacado = true;
+		}
+	}
+
+	if(!sacado){
+		return ERROR_GENERAL;
+	}
+
+	return TODO_OK;
+}
 
 juego_t *juego_crear()
 {
@@ -162,27 +197,37 @@ JUEGO_ESTADO juego_cargar_pokemon(juego_t *juego, char *archivo)
 
 lista_t *juego_listar_pokemon(juego_t *juego)
 {
-	juego->pokemones_totales = lista_crear();
+	/*juego->pokemones_totales = lista_crear();
 
-	int cantidad_pokemones = juego->info->cantidad_pokemones;
+	int cantidad_pokemones = juego->info->cantidad_pokemones;*/
 
-	for(int i = 0; i < cantidad_pokemones; i++){
+	/*for(int i = 0; i < cantidad_pokemones; i++){
 		pokemon_t* pokemon = juego->info->pokemones[i];
 		lista_insertar(juego->pokemones_totales, pokemon);
+	}*/
+
+	/*int i = 0;
+	while (i < cantidad_pokemones){
+		pokemon_t* pokemon = juego->info->pokemones[i];
+		lista_insertar(juego->pokemones_totales, pokemon);
+
+		i++;
 	}
 
 	if(!juego->pokemones_totales){
 		return NULL;
 	}
 
-	return juego->pokemones_totales;
+	return juego->pokemones_totales;*/
+
+	return NULL;
 }
 
 JUEGO_ESTADO juego_seleccionar_pokemon(juego_t *juego, JUGADOR jugador,
 				       const char *nombre1, const char *nombre2,
 				       const char *nombre3)
 {
-	/*if(!juego || !nombre1 || !nombre2 || !nombre3 || !jugador){
+	if(!juego || !nombre1 || !nombre2 || !nombre3 || !jugador){
 		return ERROR_GENERAL;
 	}
 
@@ -200,7 +245,7 @@ JUEGO_ESTADO juego_seleccionar_pokemon(juego_t *juego, JUGADOR jugador,
 		if(agregar_pokemones(juego, nombre1, nombre2, nombre3, juego->jugador2, juego->jugador1) == POKEMON_INEXISTENTE){
 			return POKEMON_INEXISTENTE;
 		}
-	}*/
+	}
 
 	return TODO_OK;
 }
@@ -209,6 +254,8 @@ resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
 				     jugada_t jugada_jugador2)
 {
 	resultado_jugada_t resultado;
+
+
 	resultado.jugador1 = ATAQUE_ERROR;
 	resultado.jugador2 = ATAQUE_ERROR;
 	return resultado;
@@ -216,28 +263,21 @@ resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
 
 int juego_obtener_puntaje(juego_t *juego, JUGADOR jugador)
 {
-	/*if(!juego || !jugador){
+	if(!juego || !jugador){
 		return 0;
 	}
 
-	int puntaje = 0;
-
 	if(jugador == JUGADOR1){
-		puntaje = jugador_calcular_puntaje(juego->jugador1);
+		return juego->jugador1->puntaje;
 	}
 
-	else if(jugador == JUGADOR2){
-		puntaje = jugador_calcular_puntaje(juego->jugador2);
-	}*/
-
-	//para calcular puntaje puedo actualizar el valor del poder de cada pokemon (usado) y luego los sumo?? 
-	//como se si ya esta usado?
+	//return juego->jugador2->puntaje;		crashea!!!!
 	return 0;
 }
 
 bool juego_finalizado(juego_t *juego)
 {
-	if(juego->turno == 9){
+	if(juego->numero_turno == 9){
 		return true;
 	}
 
@@ -246,7 +286,15 @@ bool juego_finalizado(juego_t *juego)
 
 void juego_destruir(juego_t *juego)
 {
-	//juego->jugador1->lista_pokemones = lista_destruir()
+	//lista_destruir(juego->jugador1->lista_pokemones);
+	free(juego->jugador1);
+	//lista_destruir(juego->jugador2->lista_pokemones);
+	free(juego->jugador2);
+
+	lista_destruir(juego->pokemones_totales);
+	free(juego->pokemones_totales);
+
+	pokemon_destruir_todo(juego->info);
 
 	free(juego);
 }
