@@ -35,14 +35,14 @@ struct juego{
 };
 
 JUEGO_ESTADO agregar_pokemones(juego_t *juego, const char *nombre1, const char *nombre2, const char* nombre3, jugador_t* jugador_seleccionado, jugador_t* otro_jugador){
-	int cantidad = juego->info->cantidad_pokemones;
+	int cantidad = juego->info->cantidad;
 	int contador = 0;
-	pokemon_t* pokemon1 = NULL;
-	pokemon_t* pokemon2 = NULL;
-	pokemon_t* pokemon3 = NULL;
+	pokemon_t pokemon1;
+	pokemon_t pokemon2;
+	pokemon_t pokemon3;
 
 	for(int i = 0; i < cantidad; i++){
-		char *nombre_pokemon = juego->info->pokemones[i]->nombre;
+		char *nombre_pokemon = juego->info->pokemones[i].nombre;
 
 		if(nombre1 == nombre_pokemon){
 			contador++;
@@ -67,9 +67,9 @@ JUEGO_ESTADO agregar_pokemones(juego_t *juego, const char *nombre1, const char *
 	lista_t* lista_jug_s = jugador_seleccionado->lista_pokemones;
 	lista_t* lista_jug_o = otro_jugador->lista_pokemones;
 	
-	lista_insertar(lista_jug_s, pokemon1);
-	lista_insertar(lista_jug_s, pokemon2);
-	lista_insertar(lista_jug_o, pokemon3);
+	lista_insertar(lista_jug_s, &pokemon1);
+	lista_insertar(lista_jug_s, &pokemon2);
+	lista_insertar(lista_jug_o, &pokemon3);
 
 	return TODO_OK;
 }
@@ -150,14 +150,14 @@ int asignar_poder_de_ataque(struct ataque* ataque_seleccionado, pokemon_t* pokem
 
 }
 
-JUEGO_ESTADO usar_ataque(pokemon_t* pokemon_elegido, struct ataque* ataque_seleccionado){
+/*JUEGO_ESTADO usar_ataque(pokemon_t* pokemon_elegido, struct ataque* ataque_seleccionado){
 	if(!pokemon_elegido || !ataque_seleccionado){
 		return ERROR_GENERAL;
 	}
 	bool sacado = false;
-	for(int i = 0; i < pokemon_elegido->cant_ataques; i++){
-		if(strcmp(pokemon_elegido->ataques[i]->nombre, ataque_seleccionado->nombre) == 0){
-			free(pokemon_elegido->ataques[i]);
+	for(int i = 0; i < pokemon_elegido->cantidad_ataques; i++){
+		if(strcmp(pokemon_elegido->ataques[i].nombre, ataque_seleccionado->nombre) == 0){
+			free(&pokemon_elegido->ataques[i]);
 			pokemon_elegido->ataques[i] = NULL;
 			sacado = true;
 		}
@@ -168,7 +168,7 @@ JUEGO_ESTADO usar_ataque(pokemon_t* pokemon_elegido, struct ataque* ataque_selec
 	}
 
 	return TODO_OK;
-}
+}*/
 
 juego_t *juego_crear()
 {
@@ -187,7 +187,7 @@ JUEGO_ESTADO juego_cargar_pokemon(juego_t *juego, char *archivo)
 		return ERROR_GENERAL;
 	}
 	
-	if(juego->info->cantidad_pokemones < 6){
+	if(juego->info->cantidad < 6){
 		return POKEMON_INSUFICIENTES;
 	}
 	
@@ -199,20 +199,21 @@ lista_t *juego_listar_pokemon(juego_t *juego)
 {
 	/*juego->pokemones_totales = lista_crear();
 
-	int cantidad_pokemones = juego->info->cantidad_pokemones;*/
+	int cantidad_pokemones = juego->info->cantidad;
 
-	/*for(int i = 0; i < cantidad_pokemones; i++){
-		pokemon_t* pokemon = juego->info->pokemones[i];
-		lista_insertar(juego->pokemones_totales, pokemon);
-	}*/
-
-	/*int i = 0;
+	int i = 0;
 	while (i < cantidad_pokemones){
-		pokemon_t* pokemon = juego->info->pokemones[i];
-		lista_insertar(juego->pokemones_totales, pokemon);
+		pokemon_t pokemon = juego->info->pokemones[i];
+		lista_insertar(juego->pokemones_totales, &pokemon);
 
 		i++;
+	}*/
+
+	/*for(int i = 0; i < cantidad_pokemones; i++){
+		pokemon_t pokemon = juego->info->pokemones[i];
+		lista_insertar(juego->pokemones_totales, &pokemon);
 	}
+
 
 	if(!juego->pokemones_totales){
 		return NULL;
@@ -221,6 +222,7 @@ lista_t *juego_listar_pokemon(juego_t *juego)
 	return juego->pokemones_totales;*/
 
 	return NULL;
+
 }
 
 JUEGO_ESTADO juego_seleccionar_pokemon(juego_t *juego, JUGADOR jugador,
@@ -231,7 +233,7 @@ JUEGO_ESTADO juego_seleccionar_pokemon(juego_t *juego, JUGADOR jugador,
 		return ERROR_GENERAL;
 	}
 
-	if(nombre1 == nombre2 || nombre1 == nombre3 || nombre2 == nombre3){
+	if(strcmp(nombre1, nombre2) == 0 || strcmp(nombre1, nombre3) == 0 || strcmp(nombre2, nombre3)){
 		return POKEMON_REPETIDO;
 	}
 	
@@ -273,9 +275,9 @@ struct ataque* hallar_ataque(pokemon_t* poke_elegido, char* nombre_ataque){
 		return NULL;
 	}
 
-	for(int i = 0; i < poke_elegido->cant_ataques; i++){
-		if(strcmp(poke_elegido->ataques[i]->nombre, nombre_ataque) == 0){
-			return poke_elegido->ataques[i];
+	for(int i = 0; i < poke_elegido->cantidad_ataques; i++){
+		if(strcmp(poke_elegido->ataques[i].nombre, nombre_ataque) == 0){
+			return &poke_elegido->ataques[i];
 		}
 	}
 
@@ -288,10 +290,10 @@ resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
 	resultado_jugada_t resultado;
 
 	pokemon_t* poke_jug_1 = hallar_pokemon(jugada_jugador1.pokemon, juego->jugador1);
-	struct ataque* ataque_jug_1 = hallar_ataque(poke_jug_1, jugada_jugador1.ataque);
+	struct ataque* ataque_jug_1 = (struct ataque*)pokemon_buscar_ataque(poke_jug_1, jugada_jugador1.ataque);
 
 	pokemon_t* poke_jug_2 = hallar_pokemon(jugada_jugador2.pokemon, juego->jugador2);
-	struct ataque* ataque_jug_2 = hallar_ataque(poke_jug_2, jugada_jugador2.ataque);
+	struct ataque* ataque_jug_2 = (struct ataque*)pokemon_buscar_ataque(poke_jug_2, jugada_jugador2.ataque);
 	
 	if(!poke_jug_1 || !ataque_jug_1){
 		resultado.jugador1 = ATAQUE_ERROR;
@@ -309,7 +311,7 @@ resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
 		juego->jugador1->puntaje += asignar_poder_de_ataque(ataque_jug_2, poke_jug_1); //Esto está bien? o va en obtener puntaje? Funciona igual pero depende de las pruebas. Si devuelve resultado tendría sentido
 	}
 	
-	return resultado;
+	return resultado;//AGREGAR CONTADOR TURNOS
 }
 
 int juego_obtener_puntaje(juego_t *juego, JUGADOR jugador)
@@ -323,7 +325,7 @@ int juego_obtener_puntaje(juego_t *juego, JUGADOR jugador)
 	}
 
 	else if(jugador == JUGADOR2){
-		//return juego->jugador2->puntaje; 		crashea!!!!!
+		//return juego->jugador2->puntaje;			crashea!!!
 	}
 
 	return 0;
