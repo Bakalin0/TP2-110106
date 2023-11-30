@@ -204,8 +204,6 @@ JUEGO_ESTADO juego_cargar_pokemon(juego_t *juego, char *archivo)
 
 lista_t *juego_listar_pokemon(juego_t *juego)
 {
-	juego->pokemones_totales = lista_crear();
-
 	int cantidad_pokemones = juego->info->cantidad;
 
 	/*int i = 0;
