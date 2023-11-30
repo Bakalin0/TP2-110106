@@ -204,11 +204,11 @@ JUEGO_ESTADO juego_cargar_pokemon(juego_t *juego, char *archivo)
 
 lista_t *juego_listar_pokemon(juego_t *juego)
 {
-	/*juego->pokemones_totales = lista_crear();
+	juego->pokemones_totales = lista_crear();
 
 	int cantidad_pokemones = juego->info->cantidad;
 
-	int i = 0;
+	/*int i = 0;
 	while (i < cantidad_pokemones){
 		pokemon_t pokemon = juego->info->pokemones[i];
 		lista_insertar(juego->pokemones_totales, &pokemon);
@@ -216,7 +216,7 @@ lista_t *juego_listar_pokemon(juego_t *juego)
 		i++;
 	}*/
 
-	/*for(int i = 0; i < cantidad_pokemones; i++){
+	for(int i = 0; i < cantidad_pokemones; i++){
 		pokemon_t pokemon = juego->info->pokemones[i];
 		lista_insertar(juego->pokemones_totales, &pokemon);
 	}
@@ -226,10 +226,7 @@ lista_t *juego_listar_pokemon(juego_t *juego)
 		return NULL;
 	}
 
-	return juego->pokemones_totales;*/
-
-	return NULL;
-
+	return juego->pokemones_totales;
 }
 
 JUEGO_ESTADO juego_seleccionar_pokemon(juego_t *juego, JUGADOR jugador,
@@ -332,7 +329,7 @@ int juego_obtener_puntaje(juego_t *juego, JUGADOR jugador)
 	}
 
 	else if(jugador == JUGADOR2){
-		//return juego->jugador2->puntaje;			crashea!!!
+		return juego->jugador2->puntaje;
 	}
 
 	return 0;
@@ -349,9 +346,9 @@ bool juego_finalizado(juego_t *juego)
 
 void juego_destruir(juego_t *juego)
 {
-	//lista_destruir(juego->jugador1->lista_pokemones);
+	lista_destruir(juego->jugador1->lista_pokemones);
 	free(juego->jugador1);
-	//lista_destruir(juego->jugador2->lista_pokemones);
+	lista_destruir(juego->jugador2->lista_pokemones);
 	free(juego->jugador2);
 
 	lista_destruir(juego->pokemones_totales);

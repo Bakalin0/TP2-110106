@@ -3,6 +3,7 @@
 #include "adversario.h"
 #include "pokemon.h"
 #include <stdlib.h>
+#include <time.h>
 
 struct adversario{
 	lista_t* pokemones;

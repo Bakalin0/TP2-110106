@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <string.h>
 #include "src/menu.h"
+#include <stdlib.h>
+#include <time.h>
 
 struct estado_juego{
 	juego_t* juego;
@@ -124,7 +126,7 @@ int comparador(void *_elemento1, void *_elemento2)
 }
 
 int main(){
-
+	srand((unsigned)time(NULL));
 	juego_t* juego = juego_crear();
 
 	juego_cargar_pokemon(juego, "ejemplos/correcto.txt");
