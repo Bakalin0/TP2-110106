@@ -228,21 +228,14 @@ enum TIPO pokemon_tipo(pokemon_t *pokemon)
 
 const struct ataque *pokemon_buscar_ataque(pokemon_t *pokemon, const char *nombre)
 {
-	if(pokemon == NULL){
-		return 0;
+	if(!pokemon || !nombre){
+		return NULL;
 	}
 
-	int encontrado = 0;
-	int señalador = 0;
-	for (int i = 0; i < pokemon->cant_ataques; i++){
-		if(strcmp(pokemon->nombre, nombre) == 0){
-			encontrado = 1;
-			señalador = i;
+	for(int i = 0; i < pokemon->cant_ataques; i++){
+		if(strcmp(pokemon->ataques[i]->nombre, nombre) == 0){
+			return pokemon->ataques[i];
 		}
-	}
-
-	if(encontrado == 1){
-		return pokemon->ataques[señalador];
 	}
 
 	return NULL;

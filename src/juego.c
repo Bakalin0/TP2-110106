@@ -250,14 +250,65 @@ JUEGO_ESTADO juego_seleccionar_pokemon(juego_t *juego, JUGADOR jugador,
 	return TODO_OK;
 }
 
+int comparador(void *_elemento1, void *_elemento2)
+{
+	if (!_elemento1 && !_elemento2) {
+		return 0;
+	}
+	int *elemento1 = _elemento1;
+	int *elemento2 = _elemento2;
+	return *elemento1 - *elemento2;
+}
+
+pokemon_t* hallar_pokemon(char* nombre_poke, jugador_t* jugador){
+	if(!nombre_poke || !jugador){
+		return NULL;
+	}
+
+	return lista_buscar_elemento(jugador->lista_pokemones, comparador, nombre_poke);
+}
+
+struct ataque* hallar_ataque(pokemon_t* poke_elegido, char* nombre_ataque){
+	if(!poke_elegido || !nombre_ataque){
+		return NULL;
+	}
+
+	for(int i = 0; i < poke_elegido->cant_ataques; i++){
+		if(strcmp(poke_elegido->ataques[i]->nombre, nombre_ataque) == 0){
+			return poke_elegido->ataques[i];
+		}
+	}
+
+	return NULL;
+}
+
 resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
 				     jugada_t jugada_jugador2)
 {
 	resultado_jugada_t resultado;
 
+	pokemon_t* poke_jug_1 = hallar_pokemon(jugada_jugador1.pokemon, juego->jugador1);
+	struct ataque* ataque_jug_1 = hallar_ataque(poke_jug_1, jugada_jugador1.ataque);
 
-	resultado.jugador1 = ATAQUE_ERROR;
-	resultado.jugador2 = ATAQUE_ERROR;
+	pokemon_t* poke_jug_2 = hallar_pokemon(jugada_jugador2.pokemon, juego->jugador2);
+	struct ataque* ataque_jug_2 = hallar_ataque(poke_jug_2, jugada_jugador2.ataque);
+	
+	if(!poke_jug_1 || !ataque_jug_1){
+		resultado.jugador1 = ATAQUE_ERROR;
+	}
+	else{
+		resultado.jugador1 = calcular_efectiviad(ataque_jug_1->tipo, poke_jug_2->tipo);
+		juego->jugador1->puntaje += asignar_poder_de_ataque(ataque_jug_1, poke_jug_2);
+	}
+
+	if(!ataque_jug_2 || !poke_jug_2){
+		resultado.jugador2 = ATAQUE_ERROR;
+	}
+	else{
+		resultado.jugador2 = calcular_efectiviad(ataque_jug_2->tipo, poke_jug_1->tipo);
+		juego->jugador1->puntaje += asignar_poder_de_ataque(ataque_jug_2, poke_jug_1); //Esto está bien? o va en obtener puntaje? Funciona igual pero depende de las pruebas. Si devuelve resultado tendría sentido
+	}
+	
 	return resultado;
 }
 
@@ -271,7 +322,10 @@ int juego_obtener_puntaje(juego_t *juego, JUGADOR jugador)
 		return juego->jugador1->puntaje;
 	}
 
-	//return juego->jugador2->puntaje;		crashea!!!!
+	else if(jugador == JUGADOR2){
+		//return juego->jugador2->puntaje; 		crashea!!!!!
+	}
+
 	return 0;
 }
 
