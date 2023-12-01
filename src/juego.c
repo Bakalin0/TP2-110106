@@ -8,6 +8,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
+#include <abb.h>
 
 #define MAX_TURNOS 9
 
@@ -15,6 +16,8 @@
 typedef struct jugador{
 	lista_t* lista_pokemones;
 	int puntaje;
+
+	abb_t* ataques;
 }jugador_t;
 
 typedef struct turno{
@@ -44,17 +47,17 @@ JUEGO_ESTADO agregar_pokemones(juego_t *juego, const char *nombre1, const char *
 		pokemon_t *pokemon = lista_elemento_en_posicion(juego->pokemones_totales, (size_t)i);
 		const char *nombre_pokemon = pokemon_nombre(pokemon);
 
-		if(nombre1 == nombre_pokemon){
+		if(strcmp(nombre1, nombre_pokemon) == 0){
 			contador++;
 			pokemon1 = pokemon;
 		}
 
-		if(nombre2 == nombre_pokemon){
+		if(strcmp(nombre2, nombre_pokemon) == 0){
 			contador++;
 			pokemon2 = pokemon;
 		}
 
-		if(nombre3 == nombre_pokemon){
+		if(strcmp(nombre3, nombre_pokemon) == 0){
 			contador++;
 			pokemon3 = pokemon;
 		}
@@ -121,11 +124,9 @@ RESULTADO_ATAQUE calcular_efectiviad(enum TIPO tipo_ataque, enum TIPO tipo_pokem
 		return ATAQUE_INEFECTIVO;
 	}
 
-	else if(tipo_ataque == NORMAL){
-		return NORMAL;
+	else {
+		return ATAQUE_REGULAR;
 	}
-
-	return ATAQUE_ERROR;
 }
 
 int asignar_poder_de_ataque(struct ataque* ataque_seleccionado, pokemon_t* pokemon_rival){
@@ -134,16 +135,14 @@ int asignar_poder_de_ataque(struct ataque* ataque_seleccionado, pokemon_t* pokem
 	}
 	
 	RESULTADO_ATAQUE efectividad = calcular_efectiviad(ataque_seleccionado->tipo, pokemon_tipo(pokemon_rival));
-	if(efectividad == ATAQUE_ERROR){
-		return 0;
-	}
+
 
 	if(efectividad == ATAQUE_EFECTIVO){
 		return ((int)ataque_seleccionado->poder * 3);
 	}
 
 	else if(efectividad == ATAQUE_INEFECTIVO){
-		return ((int)ataque_seleccionado->poder / 2);
+		return ((int)(ataque_seleccionado->poder+1) / 2);
 	}
 
 	return (int)ataque_seleccionado->poder;
@@ -219,11 +218,11 @@ JUEGO_ESTADO juego_seleccionar_pokemon(juego_t *juego, JUGADOR jugador,
 				       const char *nombre1, const char *nombre2,
 				       const char *nombre3)
 {
-	if(!juego || !nombre1 || !nombre2 || !nombre3 || !jugador){
+	if(!juego || !nombre1 || !nombre2 || !nombre3 ){
 		return ERROR_GENERAL;
 	}
 
-	if(strcmp(nombre1, nombre2) == 0 || strcmp(nombre1, nombre3) == 0 || strcmp(nombre2, nombre3)){
+	if(strcmp(nombre1, nombre2) == 0 || strcmp(nombre1, nombre3) == 0 || strcmp(nombre2, nombre3)==0){
 		return POKEMON_REPETIDO;
 	}
 	
@@ -242,24 +241,6 @@ JUEGO_ESTADO juego_seleccionar_pokemon(juego_t *juego, JUGADOR jugador,
 	return TODO_OK;
 }
 
-int comparador(void *_elemento1, void *_elemento2)
-{
-	if (!_elemento1 && !_elemento2) {
-		return 0;
-	}
-	int *elemento1 = _elemento1;
-	int *elemento2 = _elemento2;
-	return *elemento1 - *elemento2;
-}
-
-pokemon_t* hallar_pokemon(char* nombre_poke, jugador_t* jugador){
-	if(!nombre_poke || !jugador){
-		return NULL;
-	}
-
-	return lista_buscar_elemento(jugador->lista_pokemones, comparador, nombre_poke);
-}
-
 resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
 				     jugada_t jugada_jugador2)
 {
@@ -270,21 +251,17 @@ resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
 
 	pokemon_t* poke_jug_2 = pokemon_buscar(juego->info, jugada_jugador2.pokemon);
 	struct ataque* ataque_jug_2 = (struct ataque*)pokemon_buscar_ataque(poke_jug_2, jugada_jugador2.ataque);
-	
-	if(!poke_jug_1 || !ataque_jug_1){
-		resultado.jugador1 = ATAQUE_ERROR;
-	}
-	else{
+
+	if(poke_jug_1 && ataque_jug_1 && ataque_jug_2 && poke_jug_2){
 		resultado.jugador1 = calcular_efectiviad(ataque_jug_1->tipo, pokemon_tipo(poke_jug_2));
 		juego->jugador1.puntaje += asignar_poder_de_ataque(ataque_jug_1, poke_jug_2);
-	}
 
-	if(!ataque_jug_2 || !poke_jug_2){
-		resultado.jugador2 = ATAQUE_ERROR;
+		resultado.jugador2 = calcular_efectiviad(ataque_jug_2->tipo, pokemon_tipo(poke_jug_1));
+		juego->jugador2.puntaje += asignar_poder_de_ataque(ataque_jug_2, poke_jug_1);
 	}
 	else{
-		resultado.jugador2 = calcular_efectiviad(ataque_jug_2->tipo, pokemon_tipo(poke_jug_1));
-		juego->jugador1.puntaje += asignar_poder_de_ataque(ataque_jug_2, poke_jug_1); //Esto está bien? o va en obtener puntaje? Funciona igual pero depende de las pruebas. Si devuelve resultado tendría sentido
+		resultado.jugador1 = ATAQUE_ERROR;
+		resultado.jugador2 = ATAQUE_ERROR;
 	}
 	
 	return resultado;//AGREGAR CONTADOR TURNOS
@@ -297,10 +274,12 @@ int juego_obtener_puntaje(juego_t *juego, JUGADOR jugador)
 	}
 
 	if(jugador == JUGADOR1){
+		printf("Jugador1: %i\n", juego->jugador1.puntaje);
 		return juego->jugador1.puntaje;
 	}
 
 	else if(jugador == JUGADOR2){
+		printf("Jugador2: %i\n", juego->jugador2.puntaje);
 		return juego->jugador2.puntaje;
 	}
 
