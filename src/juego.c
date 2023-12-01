@@ -8,7 +8,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
-#include <abb.h>
+#include "abb.h"
 
 #define MAX_TURNOS 9
 
@@ -36,7 +36,22 @@ struct juego{
 	int numero_turno;
 };
 
-JUEGO_ESTADO agregar_pokemones(juego_t *juego, const char *nombre1, const char *nombre2, const char* nombre3, jugador_t jugador_seleccionado, jugador_t otro_jugador){
+int comparador(void *_elemento1, void *_elemento2)
+{
+	if (!_elemento1 || !_elemento2) {
+		return 0;
+	}
+	char *elemento1 = _elemento1;
+	char *elemento2 = _elemento2;
+	return strcmp(elemento1, elemento2);
+}
+
+void agregar_a_abb(const struct ataque* ataque, void* arbol)
+{
+	abb_insertar(arbol, (void*)ataque);
+}
+
+JUEGO_ESTADO  agregar_pokemones(juego_t *juego, const char *nombre1, const char *nombre2, const char* nombre3, jugador_t jugador_seleccionado, jugador_t otro_jugador){
 	int cantidad = pokemon_cantidad(juego->info);
 	int contador = 0;
 	pokemon_t* pokemon1;
@@ -73,6 +88,10 @@ JUEGO_ESTADO agregar_pokemones(juego_t *juego, const char *nombre1, const char *
 	lista_insertar(lista_jug_s, pokemon1);
 	lista_insertar(lista_jug_s, pokemon2);
 	lista_insertar(lista_jug_o, pokemon3);
+
+	con_cada_ataque(pokemon1, agregar_a_abb, jugador_seleccionado.ataques);
+	con_cada_ataque(pokemon2, agregar_a_abb, jugador_seleccionado.ataques);
+	con_cada_ataque(pokemon3, agregar_a_abb, otro_jugador.ataques);
 
 	return TODO_OK;
 }
@@ -182,6 +201,9 @@ juego_t *juego_crear()
 		return NULL;
 	}
 
+	juego->jugador1.ataques = abb_crear(comparador);
+	juego->jugador2.ataques = abb_crear(comparador);
+
 	return juego;
 }
 
@@ -246,24 +268,40 @@ resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
 {
 	resultado_jugada_t resultado;
 
+	resultado.jugador1 = ATAQUE_ERROR;
+	resultado.jugador2 = ATAQUE_ERROR;
+	
 	pokemon_t* poke_jug_1 = pokemon_buscar(juego->info, jugada_jugador1.pokemon);
+	if(!poke_jug_1){
+		return resultado;
+	}
+
 	struct ataque* ataque_jug_1 = (struct ataque*)pokemon_buscar_ataque(poke_jug_1, jugada_jugador1.ataque);
+	if(!ataque_jug_1){
+		return resultado;
+	}
 
 	pokemon_t* poke_jug_2 = pokemon_buscar(juego->info, jugada_jugador2.pokemon);
+	if(!poke_jug_2){
+		return resultado;
+	}
 	struct ataque* ataque_jug_2 = (struct ataque*)pokemon_buscar_ataque(poke_jug_2, jugada_jugador2.ataque);
-
-	if(poke_jug_1 && ataque_jug_1 && ataque_jug_2 && poke_jug_2){
-		resultado.jugador1 = calcular_efectiviad(ataque_jug_1->tipo, pokemon_tipo(poke_jug_2));
-		juego->jugador1.puntaje += asignar_poder_de_ataque(ataque_jug_1, poke_jug_2);
-
-		resultado.jugador2 = calcular_efectiviad(ataque_jug_2->tipo, pokemon_tipo(poke_jug_1));
-		juego->jugador2.puntaje += asignar_poder_de_ataque(ataque_jug_2, poke_jug_1);
+	if(!ataque_jug_2){
+		return resultado;
 	}
-	else{
-		resultado.jugador1 = ATAQUE_ERROR;
-		resultado.jugador2 = ATAQUE_ERROR;
+
+	if (!abb_quitar(juego->jugador1.ataques, ataque_jug_1) || !abb_quitar(juego->jugador2.ataques, ataque_jug_2)){
+		return resultado;
 	}
+
+	resultado.jugador1 = calcular_efectiviad(ataque_jug_1->tipo, pokemon_tipo(poke_jug_2));
+	juego->jugador1.puntaje += asignar_poder_de_ataque(ataque_jug_1, poke_jug_2);
+
+	resultado.jugador2 = calcular_efectiviad(ataque_jug_2->tipo, pokemon_tipo(poke_jug_1));
+	juego->jugador2.puntaje += asignar_poder_de_ataque(ataque_jug_2, poke_jug_1);
 	
+	
+	juego->numero_turno++;
 	return resultado;//AGREGAR CONTADOR TURNOS
 }
 
@@ -274,12 +312,10 @@ int juego_obtener_puntaje(juego_t *juego, JUGADOR jugador)
 	}
 
 	if(jugador == JUGADOR1){
-		printf("Jugador1: %i\n", juego->jugador1.puntaje);
 		return juego->jugador1.puntaje;
 	}
 
 	else if(jugador == JUGADOR2){
-		printf("Jugador2: %i\n", juego->jugador2.puntaje);
 		return juego->jugador2.puntaje;
 	}
 
@@ -301,6 +337,9 @@ void juego_destruir(juego_t *juego)
 	lista_destruir(juego->jugador2.lista_pokemones);
 
 	lista_destruir(juego->pokemones_totales);
+
+	abb_destruir(juego->jugador1.ataques);
+	abb_destruir(juego->jugador2.ataques);	
 
 	pokemon_destruir_todo(juego->info);
 
