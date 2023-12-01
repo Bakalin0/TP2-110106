@@ -20,11 +20,6 @@ typedef struct jugador{
 	abb_t* ataques;
 }jugador_t;
 
-typedef struct turno{
-	jugada_t* jugada_1;
-	jugada_t* jugada_2;
-}turno_t;
-
 struct juego{
 	jugador_t jugador1;
 	jugador_t jugador2;
@@ -32,7 +27,6 @@ struct juego{
 	informacion_pokemon_t *info;
 	lista_t* pokemones_totales;
 
-	turno_t* turno[MAX_TURNOS];
 	int numero_turno;
 };
 
@@ -167,26 +161,6 @@ int asignar_poder_de_ataque(struct ataque* ataque_seleccionado, pokemon_t* pokem
 	return (int)ataque_seleccionado->poder;
 
 }
-
-/*JUEGO_ESTADO usar_ataque(pokemon_t* pokemon_elegido, struct ataque* ataque_seleccionado){
-	if(!pokemon_elegido || !ataque_seleccionado){
-		return ERROR_GENERAL;
-	}
-	bool sacado = false;
-	for(int i = 0; i < pokemon_elegido->cantidad_ataques; i++){
-		if(strcmp(pokemon_elegido->ataques[i].nombre, ataque_seleccionado->nombre) == 0){
-			free(&pokemon_elegido->ataques[i]);
-			pokemon_elegido->ataques[i] = NULL;
-			sacado = true;
-		}
-	}
-
-	if(!sacado){
-		return ERROR_GENERAL;
-	}
-
-	return TODO_OK;
-}*/
 
 juego_t *juego_crear()
 {
