@@ -319,9 +319,7 @@ bool juego_finalizado(juego_t *juego)
 void juego_destruir(juego_t *juego)
 {
 	lista_destruir(juego->jugador1.lista_pokemones);
-	free(&juego->jugador1);
 	lista_destruir(juego->jugador2.lista_pokemones);
-	free(&juego->jugador2);
 
 	lista_destruir(juego->pokemones_totales);
 
