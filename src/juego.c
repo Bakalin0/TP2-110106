@@ -30,6 +30,17 @@ struct juego{
 	int numero_turno;
 };
 
+
+typedef struct adversario{
+	lista_t* pokemones;
+	lista_t* pokemones_seleccionados; // le cargo los pokemones que tiene el adversario?
+	abb_t* ataques; // le cargo los ataques de la lista de pokemones seleccionados ^ ?
+}adversario_t;
+
+void agregar_poke_adversario(adversario_t* adversario, pokemon_t* pokemon){
+	lista_insertar(adversario->pokemones_seleccionados, pokemon);
+}
+
 int comparador(void *_elemento1, void *_elemento2)
 {
 	if (!_elemento1 || !_elemento2) {

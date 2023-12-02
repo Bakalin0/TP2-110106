@@ -6,12 +6,10 @@
 #include <time.h>
 #include "abb.h"
 
-#define MAX_SELECCIONADOS 3
-
 struct adversario{
 	lista_t* pokemones;
-	pokemon_t* pokemones_seleccionados[MAX_SELECCIONADOS]; // le cargo los pokemones que tiene el adversario?
-	abb_t* ataques; // le cargo los ataques del vector de pokemones ^ ?
+	lista_t* pokemones_seleccionados; // le cargo los pokemones que tiene el adversario?
+	abb_t* ataques; // le cargo los ataques de la lista de pokemones seleccionados ^ ?
 };
 
 int comparador(void *_elemento1, void *_elemento2)
@@ -33,6 +31,7 @@ adversario_t *adversario_crear(lista_t *pokemon)
 
 	adversario->pokemones = lista_crear();
 	adversario->ataques = abb_crear(comparador);
+	adversario->pokemones_seleccionados = lista_crear();
 
 	adversario->pokemones = pokemon;
 
@@ -42,6 +41,10 @@ adversario_t *adversario_crear(lista_t *pokemon)
 bool adversario_seleccionar_pokemon(adversario_t *adversario, char **nombre1,
 				    char **nombre2, char **nombre3)
 {
+	if(!adversario, !nombre1, !nombre2, !nombre3){
+		return false;
+	}
+
 	int cantidad = lista_tamanio(adversario->pokemones);
 	int i = rand() % cantidad;
 	int j = rand() % cantidad;
@@ -59,8 +62,17 @@ bool adversario_seleccionar_pokemon(adversario_t *adversario, char **nombre1,
 	pokemon_t* pokemon3;
 
 	pokemon1 = lista_elemento_en_posicion(adversario->pokemones, (size_t)i);
+	if(!pokemon1){
+		return false;
+	}
 	pokemon2 = lista_elemento_en_posicion(adversario->pokemones, (size_t)j);
+	if(!pokemon2){
+		return false;
+	}
 	pokemon3 = lista_elemento_en_posicion(adversario->pokemones, (size_t)k);
+	if(!pokemon3){
+		return false;
+	}
 
 	*nombre1 = (char*)pokemon_nombre(pokemon1);
 	*nombre2 = (char*)pokemon_nombre(pokemon2);
@@ -72,6 +84,8 @@ bool adversario_seleccionar_pokemon(adversario_t *adversario, char **nombre1,
 bool adversario_pokemon_seleccionado(adversario_t *adversario, char *nombre1,
 				     char *nombre2, char *nombre3)
 {
+	
+	
 	return false;
 }
 
@@ -90,6 +104,8 @@ void adversario_destruir(adversario_t *adversario)
 	lista_destruir(adversario->pokemones);
 
 	abb_destruir(adversario->ataques);
+
+	lista_destruir(adversario->pokemones_seleccionados);
 
 	free(adversario);
 }
