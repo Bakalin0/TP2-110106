@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "abb.h"
+#include <string.h>
 
 struct adversario{
 	lista_t* pokemones;
@@ -12,7 +13,7 @@ struct adversario{
 	abb_t* ataques; // le cargo los ataques de la lista de pokemones seleccionados ^ ?
 };
 
-int comparador(void *_elemento1, void *_elemento2)
+int comparador1(void *_elemento1, void *_elemento2)
 {
 	if (!_elemento1 || !_elemento2) {
 		return 0;
@@ -30,7 +31,7 @@ adversario_t *adversario_crear(lista_t *pokemon)
 	}
 
 	adversario->pokemones = lista_crear();
-	adversario->ataques = abb_crear(comparador);
+	adversario->ataques = abb_crear(comparador1);
 	adversario->pokemones_seleccionados = lista_crear();
 
 	adversario->pokemones = pokemon;
@@ -41,11 +42,11 @@ adversario_t *adversario_crear(lista_t *pokemon)
 bool adversario_seleccionar_pokemon(adversario_t *adversario, char **nombre1,
 				    char **nombre2, char **nombre3)
 {
-	if(!adversario, !nombre1, !nombre2, !nombre3){
+	if(!adversario || !nombre1 || !nombre2 || !nombre3){
 		return false;
 	}
 
-	int cantidad = lista_tamanio(adversario->pokemones);
+	int cantidad = (int)lista_tamanio(adversario->pokemones);
 	int i = rand() % cantidad;
 	int j = rand() % cantidad;
 	int k = rand() % cantidad;
@@ -92,6 +93,14 @@ bool adversario_pokemon_seleccionado(adversario_t *adversario, char *nombre1,
 jugada_t adversario_proxima_jugada(adversario_t *adversario)
 {
 	jugada_t j = { .ataque = "", .pokemon = "" };
+
+	int i, k = 0;
+
+	int cantidad = abb_tamanio(adversario->ataques);
+
+	//puedo hacerme el abb con los ataques y que se elija random un ataque de ahí. luego podría recorrer cada pokemon comparando sus ataques con el elegido. 
+	//pero como si no tengo una función que devuelva ataques??
+
 	return j;
 }
 
