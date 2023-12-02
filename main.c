@@ -125,13 +125,7 @@ int comparador(void *_elemento1, void *_elemento2)
 	return *elemento1 - *elemento2;
 }
 
-int main(){
-	srand((unsigned)time(NULL));
-	juego_t* juego = juego_crear();
-
-	juego_cargar_pokemon(juego, "ejemplos/correcto.txt");
-
-	menu_t* menu = menu_crear();
+	/*menu_t* menu = menu_crear();
 
 	menu_agregar_comando(menu, "c", "Cargar un archivo", pokemon_cargar_archivo);
 	menu_agregar_comando(menu, "l", "Listar Pokemones", juego_listar_pokemon);
@@ -165,6 +159,18 @@ int main(){
 
 
 
-	menu_destruir(menu);
+	menu_destruir(menu);*/
+
+int main(){
+	srand((unsigned)time(NULL));
+	juego_t* juego = juego_crear();
+
+	juego_cargar_pokemon(juego, "ejemplos/correcto.txt");
+
+	printf("");
+
+	printf("La lista de pokemones se ha cargado con éxito. Por favor, elegí 3(tres) pokemones distintos, escribiendo su nombre, uno a uno.\n");
+	
+	
 
 }
