@@ -10,8 +10,8 @@
 
 struct adversario{
 	lista_t* pokemones;
-	pokemon_t* pokemones_seleccionados[MAX_SELECCIONADOS];
-	abb_t* ataques;
+	pokemon_t* pokemones_seleccionados[MAX_SELECCIONADOS]; // le cargo los pokemones que tiene el adversario?
+	abb_t* ataques; // le cargo los ataques del vector de pokemones ^ ?
 };
 
 int comparador(void *_elemento1, void *_elemento2)
