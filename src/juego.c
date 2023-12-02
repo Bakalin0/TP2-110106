@@ -9,9 +9,16 @@
 #include <stdio.h>
 #include <string.h>
 #include "abb.h"
+#include "adversario.h"
 
 #define MAX_TURNOS 9
 
+
+struct adversario{
+	lista_t* pokemones;
+	lista_t* pokemones_seleccionados; 
+	abb_t* ataques; 
+};
 
 typedef struct jugador{
 	lista_t* lista_pokemones;
@@ -27,15 +34,11 @@ struct juego{
 	informacion_pokemon_t *info;
 	lista_t* pokemones_totales;
 
+	adversario_t* adversario;
+
 	int numero_turno;
 };
 
-
-typedef struct adversario{
-	lista_t* pokemones;
-	lista_t* pokemones_seleccionados; // le cargo los pokemones que tiene el adversario?
-	abb_t* ataques; // le cargo los ataques de la lista de pokemones seleccionados ^ ?
-}adversario_t;
 
 void agregar_poke_adversario(adversario_t* adversario, pokemon_t* pokemon){
 	lista_insertar(adversario->pokemones_seleccionados, pokemon);
@@ -189,6 +192,9 @@ juego_t *juego_crear()
 	juego->jugador1.ataques = abb_crear(comparador);
 	juego->jugador2.ataques = abb_crear(comparador);
 
+
+	juego->adversario = adversario_crear(juego->pokemones_totales);
+
 	return juego;
 }
 
@@ -210,6 +216,8 @@ JUEGO_ESTADO juego_cargar_pokemon(juego_t *juego, char *archivo)
 	}
 
 	con_cada_pokemon(juego->info, agregar_a_lista, juego->pokemones_totales);	
+
+	juego->adversario->pokemones = juego->pokemones_totales;
 
 	return TODO_OK;
 }
@@ -235,6 +243,7 @@ JUEGO_ESTADO juego_seleccionar_pokemon(juego_t *juego, JUGADOR jugador,
 	
 	if(jugador == JUGADOR1){
 		if(agregar_pokemones(juego, nombre1, nombre2, nombre3, juego->jugador1, juego->jugador2) == POKEMON_INEXISTENTE){
+			agregar_poke_adversario(juego->adversario, lista_ultimo(juego->jugador2.lista_pokemones));
 			return POKEMON_INEXISTENTE;
 		}
 	}
@@ -327,6 +336,8 @@ void juego_destruir(juego_t *juego)
 	abb_destruir(juego->jugador2.ataques);	
 
 	pokemon_destruir_todo(juego->info);
+
+	adversario_destruir(juego->adversario);
 
 	free(juego);
 }
