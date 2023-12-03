@@ -302,15 +302,12 @@ int main(){
 
 	printf("Insertá el nombre, tal cual como aparece, del primer pokemon que querés elegir.\n");
 	pedir_input((char*)nombre1, sizeof(nombre1));
-	printf("nombre 1: %s\n", nombre1);
 
 	printf("Insertá el nombre, tal cual como aparece, del segundo pokemon que querés elegir.\n");
 	pedir_input((char*)nombre2, sizeof(nombre2));
-	printf("nombre 2: %s\n", nombre2);
 
 	printf("Insertá el nombre, tal cual como aparece, del tercer pokemon del adversario.\n");
 	pedir_input((char*)nombre3, sizeof(nombre3));
-	printf("nombre 3: %s\n", nombre3);
 
 	JUGADOR jugador1 = JUGADOR1;
 	//JUGADOR adversario = JUGADOR2;

@@ -55,7 +55,7 @@ adversario_t *adversario_crear(lista_t *pokemon)
 	}
 	
 	for(int i = 0; i < 3; i++){
-		adversario->pokemones_seleccionados[i] = calloc(1, sizeof(adversario->pokemones_seleccionados[i]));
+		adversario->pokemones_seleccionados[i] = calloc(1, sizeof(adversario->pokemones_seleccionados));
 		adversario->pokemones_seleccionados[i]->ataques = lista_crear();
 	}
 
