@@ -16,7 +16,7 @@ typedef struct estructura_pokemones{
 
 struct adversario{
 	lista_t* pokemones;
-	estructura_pokemones_t* pokemones_seleccionados[3]; 
+	estructura_pokemones_t* pokemones_seleccionados[2]; 
 	abb_t* ataques_totales; 
 };
 
@@ -47,10 +47,15 @@ adversario_t *adversario_crear(lista_t *pokemon)
 		return NULL;
 	}
 
-	adversario->pokemones = lista_crear();
+	free(adversario->ataques_totales);
 	adversario->ataques_totales = abb_crear(comparador1);
+	if(!adversario->ataques_totales){
+		free(adversario);
+		return NULL;
+	}
 	
 	for(int i = 0; i < 3; i++){
+		adversario->pokemones_seleccionados[i] = calloc(1, sizeof(adversario->pokemones_seleccionados[i]));
 		adversario->pokemones_seleccionados[i]->ataques = lista_crear();
 	}
 
@@ -103,7 +108,7 @@ bool adversario_seleccionar_pokemon(adversario_t *adversario, char **nombre1,
 	adversario->pokemones_seleccionados[1]->pokemon = pokemon2;
 
 	con_cada_ataque(pokemon1, agregar_a_lista1, adversario->pokemones_seleccionados[0]->ataques);
-	con_cada_ataque(pokemon1, agregar_a_lista1, adversario->pokemones_seleccionados[1]->ataques);
+	con_cada_ataque(pokemon2, agregar_a_lista1, adversario->pokemones_seleccionados[1]->ataques);
 
 	return true;
 }
@@ -177,12 +182,11 @@ void adversario_informar_jugada(adversario_t *a, jugada_t j)
 
 void adversario_destruir(adversario_t *adversario)
 {
-	lista_destruir(adversario->pokemones);
-
 	abb_destruir(adversario->ataques_totales);
 
 	for(int i = 0; i < 3; i++){
 		lista_destruir(adversario->pokemones_seleccionados[i]->ataques);
+		free(adversario->pokemones_seleccionados[i]);
 	}
 
 	free(adversario);

@@ -175,7 +175,18 @@ juego_t *juego_crear()
 	}
 
 	juego->jugador1.ataques = abb_crear(comparador);
+	if(!juego->jugador1.ataques){
+		free(juego);
+		lista_destruir(juego->pokemones_totales);
+		return NULL;
+	}
+
 	juego->jugador2.ataques = abb_crear(comparador);
+	if(!juego->jugador2.ataques){
+		free(juego);
+		lista_destruir(juego->pokemones_totales);
+		return NULL;
+	}
 
 	return juego;
 }
@@ -306,8 +317,8 @@ bool juego_finalizado(juego_t *juego)
 
 void juego_destruir(juego_t *juego)
 {
-	lista_destruir(juego->jugador1.lista_pokemones);
-	lista_destruir(juego->jugador2.lista_pokemones);
+	lista_destruir_todo(juego->jugador1.lista_pokemones, free);
+	lista_destruir_todo(juego->jugador2.lista_pokemones, free);
 
 	lista_destruir(juego->pokemones_totales);
 
