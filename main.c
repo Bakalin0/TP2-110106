@@ -272,6 +272,8 @@ int main(){
 	lista_t* lista_pokemones;
 	lista_pokemones = juego_listar_pokemon(juego);
 
+	adversario_t* adversario = adversario_crear(lista_pokemones);
+
 	printf("Bienvenido al juego!! Ya sabés cómo jugar?\n");
 	char respuesta[200];
 
@@ -302,16 +304,13 @@ int main(){
 
 	printf("Insertá el nombre, tal cual como aparece, del primer pokemon que querés elegir.\n");
 	pedir_input((char*)nombre1, sizeof(nombre1));
-	printf("nombre 1: %s\n", nombre1);
 
 	printf("Insertá el nombre, tal cual como aparece, del segundo pokemon que querés elegir.\n");
 	pedir_input((char*)nombre2, sizeof(nombre2));
-	printf("nombre 2: %s\n", nombre2);
 
 	printf("Insertá el nombre, tal cual como aparece, del tercer pokemon del adversario.\n");
 	pedir_input((char*)nombre3, sizeof(nombre3));
-	printf("nombre 3: %s\n", nombre3);
-
+	
 	JUGADOR jugador1 = JUGADOR1;
 	//JUGADOR adversario = JUGADOR2;
 
@@ -338,7 +337,7 @@ int main(){
 	//char nombre2_adversario[200];
 	//char nombre3_adversario[200];
 
-	adversario_t* adversario = adversario_crear(lista_pokemones);
+	
 	adversario_destruir(adversario);
 	juego_destruir(juego);
 

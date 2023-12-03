@@ -16,7 +16,7 @@ typedef struct estructura_pokemones{
 
 struct adversario{
 	lista_t* pokemones;
-	estructura_pokemones_t* pokemones_seleccionados[2]; 
+	estructura_pokemones_t* pokemones_seleccionados[3]; 
 	abb_t* ataques_totales; 
 };
 
@@ -55,7 +55,7 @@ adversario_t *adversario_crear(lista_t *pokemon)
 	}
 	
 	for(int i = 0; i < 3; i++){
-		adversario->pokemones_seleccionados[i] = calloc(1, sizeof(adversario->pokemones_seleccionados[i]));
+		adversario->pokemones_seleccionados[i] = calloc(1, sizeof(adversario->pokemones_seleccionados));
 		adversario->pokemones_seleccionados[i]->ataques = lista_crear();
 	}
 
