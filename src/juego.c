@@ -275,7 +275,7 @@ resultado_jugada_t juego_jugar_turno(juego_t *juego, jugada_t jugada_jugador1,
 	
 	
 	juego->numero_turno++;
-	return resultado;//AGREGAR CONTADOR TURNOS
+	return resultado;
 }
 
 int juego_obtener_puntaje(juego_t *juego, JUGADOR jugador)
