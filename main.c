@@ -5,7 +5,6 @@
 #include "src/adversario.h"
 #include <stdio.h>
 #include <string.h>
-#include "src/menu.h"
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
@@ -16,7 +15,6 @@
 struct estado_juego{
 	juego_t* juego;
 	bool continuar;
-	menu_t* menu;
 };
 
 
@@ -313,7 +311,7 @@ int main(){
 		printf("Envía un input para continuar.\n");
 		pedir_input(respuesta, sizeof(respuesta));
 	}
-	sleep(3);
+	sleep(1);
 	char* ganador = obtener_ganador(puntaje_jug1, puntaje_jug2);
 
 	if(puntaje_jug1 == puntaje_jug2){
