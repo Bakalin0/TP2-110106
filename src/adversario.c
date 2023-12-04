@@ -108,7 +108,10 @@ bool adversario_seleccionar_pokemon(adversario_t *adversario, char **nombre1,
 	adversario->pokemones_seleccionados[1]->pokemon = pokemon2;
 
 	con_cada_ataque(pokemon1, agregar_a_lista1, adversario->pokemones_seleccionados[0]->ataques);
+	con_cada_ataque(pokemon1, agregar_a_abb1, adversario->ataques_totales);
+
 	con_cada_ataque(pokemon2, agregar_a_lista1, adversario->pokemones_seleccionados[1]->ataques);
+	con_cada_ataque(pokemon2, agregar_a_abb1, adversario->ataques_totales);
 
 	return true;
 }
