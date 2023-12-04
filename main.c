@@ -266,6 +266,7 @@ int main(){
 
 	while (!juego_finalizado(juego)) {
 		printf("Comenzando ronda %i/9...\n\n", turno);
+		sleep(1);
 		printf("Lista de pokemones:\n\n");
 
 		lista_con_cada_elemento(lista_pokemones, mostrar_pokemon, NULL);
@@ -309,6 +310,8 @@ int main(){
 		printf("Fin de la ronda %i/9.\n", turno);
 		turno++;
 		sleep(2);
+		printf("Envía un input para continuar.\n");
+		pedir_input(respuesta, sizeof(respuesta));
 	}
 	sleep(3);
 	char* ganador = obtener_ganador(puntaje_jug1, puntaje_jug2);
